@@ -7,6 +7,8 @@ import SearchIcon from '@material-ui/icons/Search';
 import {searchRequest, resetPage, fetchMore} from '../../redux/actions/search';
 import ListImage from '../../components/ListImage';
 import usePrevious from '../../hooks/usePrevious';
+import {FAVOURITE_TYPE} from '../../redux/actionTypes/favourite';
+import {favouriteRequest} from '../../redux/actions/favourtite';
 
 interface RootState {
   search: {
@@ -16,6 +18,10 @@ interface RootState {
     isError: boolean;
     page: number;
   };
+  favourite: {
+    favourite: object;
+    isAdding: boolean;
+  };
 }
 
 export const Search: React.SFC<{}> = () => {
@@ -24,7 +30,6 @@ export const Search: React.SFC<{}> = () => {
   const location = useLocation();
   const [prevKeyWord, setPrevKeyWord] = usePrevious();
   const [prevPage, setPrevPage] = usePrevious();
-  // const [state, setstate] = useState(initialState)
 
   const {q: word, page: offset} = queryString.parse(location.search);
 
@@ -46,13 +51,17 @@ export const Search: React.SFC<{}> = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     history.push(`?q=${e.target.value}`);
-    dispatch(resetPage())
+    dispatch(resetPage());
   };
 
   const handleLoadMore = useCallback(() => {
     history.push(`?q=${keyWord}&page=${page + 1}`);
-    dispatch(fetchMore(page + 1))
-  }, [keyWord]);
+    dispatch(fetchMore(page + 1));
+  }, [keyWord, page]);
+
+  const handleSelect = useCallback((item: FAVOURITE_TYPE) => {
+    dispatch(favouriteRequest(item));
+  }, []);
 
   useEffect(() => {
     if (!word) return;
@@ -63,13 +72,11 @@ export const Search: React.SFC<{}> = () => {
 
     setPrevPage(offset);
     setPrevKeyWord(word);
-
-    if(['string', 'undefined', 'null'].includes(typeof offset)){
+    console.log('offset', typeof offset)
+    if (['string', 'undefined', 'null'].includes(typeof offset)) {
       dispatch(searchRequest(word, offset ? +offset : 0));
     }
-
   }, [word, offset, dispatch]);
-
 
   return (
     <>
@@ -88,11 +95,16 @@ export const Search: React.SFC<{}> = () => {
         />
       </div>
       <div className="main">
-        <ListImage
-          images={images}
-          isLoading={isLoading}
-          loadFunc={handleLoadMore}
-        />
+        {images.length > 0 ? (
+          <ListImage
+            images={images}
+            isLoading={isLoading}
+            loadFunc={handleLoadMore}
+            onSelect={handleSelect}
+          />
+        ) : (
+          'No data'
+        )}
       </div>
     </>
   );

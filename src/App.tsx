@@ -6,6 +6,7 @@ import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
 import { Routes } from "./route";
 import configureStore from "./redux/store/configureStore";
+import { NotificationContainer } from "./components/Notification";
 
 function App() {
   const store = configureStore();
@@ -15,6 +16,7 @@ function App() {
         <Header />
         <Routes />
         <Footer />
+        <NotificationContainer/>
       </BrowserRouter>
     </Provider>
   );

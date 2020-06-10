@@ -1,11 +1,15 @@
-import { put, call, takeEvery, all, select } from "redux-saga/effects";
-import { SearchRequestAction, SEARCH_REQUEST} from "../actionTypes/search";
-import { getImage } from "../../utils/api";
-import { searchSuccess, searchError} from "../actions/search";
+import {put, call, takeEvery, all} from 'redux-saga/effects';
+import {SearchRequestAction, SEARCH_REQUEST} from '../actionTypes/search';
+import {getImage} from '../../utils/api';
+import {searchSuccess, searchError} from '../actions/search';
 
-function* getImages( {keyWord, page} : SearchRequestAction) {
+function* getImages({keyWord, page}: SearchRequestAction) {
   try {
-    const res = yield call(getImage, {name: keyWord, limit: (page + 1)*10, offset: 0});
+    const res = yield call(getImage, {
+      name: keyWord,
+      limit: (page + 1) * 10,
+      offset: 0,
+    });
     yield put(searchSuccess(res));
   } catch (error) {
     yield put(searchError(error));

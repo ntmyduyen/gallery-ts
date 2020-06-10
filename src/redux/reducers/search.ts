@@ -12,7 +12,6 @@ export interface SearchState {
   isLoading: boolean;
   isError: boolean;
   page: number;
-  isloadingMore: boolean
 }
 
 export default function searchReducer(
@@ -21,8 +20,7 @@ export default function searchReducer(
     images: [],
     isLoading: false,
     isError: false,
-    page: 0,
-    isloadingMore: false
+    page: 0
   },
   action: SearchAction,
 ): SearchState {

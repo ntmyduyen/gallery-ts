@@ -1,30 +1,40 @@
 import React, {useEffect, useRef, useState} from 'react';
+import {useSelector} from 'react-redux';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import {Images} from '../Images';
+import {FAVOURITE_TYPE} from '../../redux/actionTypes/favourite';
+import {RootFavouriteState} from '../../pages/Favourite';
 
 interface Props {
   images: any[];
   isLoading: boolean;
   loadFunc: () => void;
+  onSelect: (item: FAVOURITE_TYPE) => void;
 }
 
-const ListImage: React.SFC<Props> = ({images, isLoading, loadFunc}: Props) => {
+const ListImage: React.SFC<Props> = ({
+  images,
+  isLoading,
+  loadFunc,
+  onSelect,
+}: Props) => {
   const loaderRef = useRef<HTMLDivElement>(null);
 
+  const favourites = useSelector((state: RootFavouriteState) => {
+    return state.favourite.favourite;
+  });
+  
   useEffect(() => {
+    console.log('render')
     let observer: IntersectionObserver;
-
-    console.log('loaderRef', loaderRef);
-
     if (loaderRef.current) {
       if (IntersectionObserver) {
         observer = new IntersectionObserver((entries) => {
           entries.forEach((entry) => {
-            console.log(entry);
+            const y = entry.boundingClientRect.top;
             if (entry.isIntersecting && loaderRef.current) {
               observer.unobserve(loaderRef.current);
               loadFunc();
-              console.log('load more ....');
             }
           });
         });
@@ -37,31 +47,21 @@ const ListImage: React.SFC<Props> = ({images, isLoading, loadFunc}: Props) => {
         observer.unobserve(loaderRef.current);
       }
     };
-  }, [loaderRef]);
-
-  // if (isLoading) return <CircularProgress />;
+  }, [images, loaderRef]);
 
   return (
     <>
       <div className="list-image">
-        {images.length > 0 ? (
-          <>
-            {images.map((item) => (
-              <Images key={item.id} item={item} />
-            ))}
-            {/* <div className="list-image__loader" ref={loaderRef}>
-              <div className="loader">
-                <button className="loader__btn">Load more ...</button>
-              </div>
-            </div> */}
-          </>
-        ) : (
-          'No data'
-        )}
+        {images.map((item) => (
+          <Images
+            key={item.id}
+            item={item}
+            onSelect={onSelect}
+            isFavourite={(favourites as any)[item.id]}
+          />
+        ))}
       </div>
-      <div ref={loaderRef}>
-        {isLoading && <CircularProgress />}
-      </div>
+      <div ref={loaderRef}>{isLoading && <CircularProgress />}</div>
     </>
   );
 };
